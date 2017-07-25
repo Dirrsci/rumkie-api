@@ -1,14 +1,10 @@
 import mongoose from 'mongoose';
 
-let Schema = mongoose.Schema;
-
-let SongSchema = mongoose.Schema({
-  name: String,
-  mp3_url: String,
-  image_url: String
-  vote_count: Number,
+let VoteSchema = mongoose.Schema({
+  chargeId: String,
+  songId: String
 });
 
-let SongModel = mongoose.model('Song, SongSchema');
+let VoteModel = mongoose.model('Vote', VoteSchema);
 
-export default SongModel;
+export default VoteModel;
