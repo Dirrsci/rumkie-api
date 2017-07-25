@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "restify": "^5.0.0"
+    "config": "^1.26.1",
+    "restify": "^5.0.0",
+    "stripe": "^4.23.1"
   }
 }
