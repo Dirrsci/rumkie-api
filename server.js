@@ -3,8 +3,10 @@ import mongoose from 'mongoose';
 import config from './config/default';
 import bluebird from 'bluebird';
 import Stripe from './StripeApi';
-import Voter from './StripeApi';
+import Voter from './VoterApi';
 import SongModel from './models/song';
+import corsMiddleware from 'restify-cors-middleware';
+import pasync from 'pasync';
 
 let stripe = new Stripe();
 let voter = new Voter();
@@ -15,6 +17,15 @@ const server = restify.createServer({
   name: 'myapp',
   version: '1.0.0'
 });
+
+const cors = corsMiddleware({
+  origins: ['http://localhost:3000'],
+  allowHeaders: ['*']
+  // exposeHeaders: ['API-Token-Expiry']
+});
+
+server.pre(cors.preflight);
+server.use(cors.actual);
 
 server.use(restify.plugins.acceptParser(server.acceptable));
 server.use(restify.plugins.queryParser());
@@ -35,17 +46,22 @@ server.get('/songs', (req, res, next) => {
 server.post('/vote', (req, res, next) => {
   console.log('req.params: ', req.params);
   console.log('req.body: ', req.body);
-  stripe.create(req.body)
+  let { name, email, songs, token } = req.body;
+  // start of promise chain
+  stripe.calculateChargeAmount(songs.length)
+    .then((chargeAmount) => stripe.chargeCard(chargeAmount, token))
     .then((charge) => {
-      req.body.songs.map((song) => {
-        voter.vote(song.id, charge.id);
+      return pasync.each(songs, (song) => {
+        return voter.vote(song.id, charge.id);
       });
+    })
+    .then(() => {
+      res.send('Successfully Voted');
+      return next();
     })
     .catch((err) => {
       console.log('Error Charging Card: ', err);
     });
-  res.send('Successfully Voted');
-  return next();
 });
 
 server.post('/song', (req, res, next) => {
