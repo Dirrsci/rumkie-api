@@ -4,9 +4,10 @@ import config from './config/default';
 import bluebird from 'bluebird';
 import Stripe from './StripeApi';
 import Voter from './VoterApi';
-import SongModel from './models/song';
 import corsMiddleware from 'restify-cors-middleware';
 import pasync from 'pasync';
+
+import Songs from './songlist.json';
 
 let stripe = new Stripe();
 let voter = new Voter();
@@ -33,19 +34,27 @@ server.use(restify.plugins.bodyParser());
 
 
 server.get('/songs', (req, res, next) => {
-  SongModel.find()
-    .then((songs) => {
-      res.send(songs);
+  res.send(Songs);
+  return next(false);
+});
+
+server.get('/songs-with-votes', (req, res, next) => {
+  voter.getCounts()
+    .then((counts) => {
+      Songs.map((song) => {
+        const count = counts.filter((count) => { return count._id === song.id; })[0];
+        song.count = count && count.count || 0;
+      });
+      res.send(Songs);
       return next(false);
     })
     .catch((err) => {
+      res.send(err);
       return next(err);
     });
 });
 
 server.post('/vote', (req, res, next) => {
-  console.log('req.params: ', req.params);
-  console.log('req.body: ', req.body);
   let { name, email, songs, token } = req.body;
   // start of promise chain
   stripe.calculateChargeAmount(songs.length)
@@ -61,17 +70,6 @@ server.post('/vote', (req, res, next) => {
     })
     .catch((err) => {
       console.log('Error Charging Card: ', err);
-    });
-});
-
-server.post('/song', (req, res, next) => {
-  SongModel.create(req.body)
-    .then((song) =>{
-      res.send(song);
-      next(song);
-    })
-    .catch((err) => {
-      next(err);
     });
 });
 
