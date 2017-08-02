@@ -5,6 +5,7 @@ import bluebird from 'bluebird';
 import Stripe from './StripeApi';
 import Voter from './VoterApi';
 import corsMiddleware from 'restify-cors-middleware';
+import errors from 'restify-errors';
 import pasync from 'pasync';
 
 import Songs from './songlist.json';
@@ -42,36 +43,38 @@ server.get('/songs-with-votes', (req, res, next) => {
   voter.getCounts()
     .then((counts) => {
       Songs.map((song) => {
-        const count = counts.filter((count) => { return count._id === song.id; })[0];
+        const count = counts.find((count) => {
+          return count._id === JSON.stringify(song.id);
+        });
         song.count = count && count.count || 0;
       });
       res.send(Songs);
-      return next(false);
     })
-    .catch((err) => {
-      res.send(err);
-      return next(err);
-    });
+    .catch(err => res.send(new Error(err)))
+    .then(() => next());
 });
 
 server.post('/vote', (req, res, next) => {
   let { name, email, songs, token } = req.body;
-  console.log('songs', songs);
   // start of promise chain
+  if (songs.length === 0) {
+    return res.send(new errors.InvalidVersionError({
+      statusCode: 500,
+      message: 'No songs selected'
+    }));
+  }
+
   stripe.calculateChargeAmount(songs.length)
     .then((chargeAmount) => stripe.chargeCard(chargeAmount, token))
     .then((charge) => {
       return pasync.each(songs, (songId) => {
-        return voter.vote(songId, charge.id);
+        return voter.vote(name, email, songId, charge.id);
       });
     })
     .then(() => {
       res.send('Successfully Voted');
     })
-    .catch((err) => {
-      res.send('Error Voted');
-      console.log('Error Charging Card: ', err);
-    })
+    .catch(err => res.send(new Error(err)))
     .then(() => next());
 });
 

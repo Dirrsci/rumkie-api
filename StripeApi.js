@@ -7,8 +7,6 @@ export default class StripeApi {
   }
 
   chargeCard(amount, token) {
-    console.log('amount: ', amount);
-    console.log('token: ', token);
     return this.stripe.charges.create({
       amount: amount,
       currency: 'usd',
@@ -18,7 +16,6 @@ export default class StripeApi {
   }
 
   calculateChargeAmount(numSongs) {
-    console.log('numSongs: ', numSongs);
     let amount;
     if (numSongs === 0) amount = 0;
     if (numSongs === 1) amount = 300;

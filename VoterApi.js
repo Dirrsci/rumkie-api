@@ -1,8 +1,8 @@
 import VoteModel from './models/vote';
 
 export default class VoterApi {
-  vote(songId, chargeId) {
-    return VoteModel.create({ songId, chargeId });
+  vote(name, email, songId, chargeId) {
+    return VoteModel.create({ name, email, songId, chargeId });
   }
 
   getAll() {
@@ -17,5 +17,4 @@ export default class VoterApi {
         return Promise.resolve(res);
       });
   }
-
 }
