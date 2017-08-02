@@ -66,11 +66,12 @@ server.post('/vote', (req, res, next) => {
     })
     .then(() => {
       res.send('Successfully Voted');
-      return next();
     })
     .catch((err) => {
+      res.send('Error Voted');
       console.log('Error Charging Card: ', err);
-    });
+    })
+    .then(() => next());
 });
 
 server.listen(8080, () => {
