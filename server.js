@@ -50,7 +50,10 @@ server.get('/songs-with-votes', (req, res, next) => {
       });
       res.send(Songs);
     })
-    .catch(err => res.send(new Error(err)))
+    .catch(err => res.send(res.send(new errors.InternalServerError({
+      statusCode: 500,
+      message: err
+    }))))
     .then(() => next());
 });
 
@@ -58,7 +61,7 @@ server.post('/vote', (req, res, next) => {
   let { name, email, songs, token } = req.body;
   // start of promise chain
   if (songs.length === 0) {
-    return res.send(new errors.InvalidVersionError({
+    return res.send(new errors.InternalServerError({
       statusCode: 500,
       message: 'No songs selected'
     }));
@@ -74,7 +77,10 @@ server.post('/vote', (req, res, next) => {
     .then(() => {
       res.send('Successfully Voted');
     })
-    .catch(err => res.send(new Error(err)))
+    .catch(err => res.send(new errors.InternalServerError({
+      statusCode: 500,
+      message: err
+    })))
     .then(() => next());
 });
 
