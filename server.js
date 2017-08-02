@@ -56,12 +56,13 @@ server.get('/songs-with-votes', (req, res, next) => {
 
 server.post('/vote', (req, res, next) => {
   let { name, email, songs, token } = req.body;
+  console.log('songs', songs);
   // start of promise chain
   stripe.calculateChargeAmount(songs.length)
     .then((chargeAmount) => stripe.chargeCard(chargeAmount, token))
     .then((charge) => {
-      return pasync.each(songs, (song) => {
-        return voter.vote(song.id, charge.id);
+      return pasync.each(songs, (songId) => {
+        return voter.vote(songId, charge.id);
       });
     })
     .then(() => {
