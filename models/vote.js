@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+let mongoose = require('mongoose');
 
 let VoteSchema = mongoose.Schema({
   name: String,
