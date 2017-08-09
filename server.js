@@ -1,14 +1,14 @@
-let restify = require('restify');
-let mongoose = require('mongoose');
-let config = require('./config/default');
-let bluebird = require('bluebird');
-let Stripe = require('./StripeApi').default;
-let Voter = require('./VoterApi').default;
-let corsMiddleware = require('restify-cors-middleware');
-let errors = require('restify-errors');
-let pasync = require('pasync');
+import restify from 'restify';
+import mongoose from 'mongoose';
+import config from './config/default';
+import bluebird from 'bluebird';
+import Stripe from './StripeApi';
+import Voter from './VoterApi';
+import corsMiddleware from 'restify-cors-middleware';
+import errors from 'restify-errors';
+import pasync from 'pasync';
 
-let Songs = require('./songlist.json');
+import Songs from './songlist.json';
 
 let stripe = new Stripe();
 let voter = new Voter();

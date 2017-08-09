@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   mongoose: {
     url: 'mongodb://localhost/rumpke-api'
   },
