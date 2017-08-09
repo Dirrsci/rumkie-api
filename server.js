@@ -52,7 +52,7 @@ server.get('/songs-with-votes', (req, res, next) => {
     })
     .catch(err => res.send(res.send(new errors.InternalServerError({
       statusCode: 500,
-      message: err
+      message: JSON.stringify(err)
     }))))
     .then(() => next());
 });
@@ -79,7 +79,7 @@ server.post('/vote', (req, res, next) => {
     })
     .catch(err => res.send(new errors.InternalServerError({
       statusCode: 500,
-      message: err
+      message: JSON.stringify(err)
     })))
     .then(() => next());
 });
