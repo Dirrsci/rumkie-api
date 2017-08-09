@@ -1,6 +1,6 @@
 let restify = require('restify');
 let mongoose = require('mongoose');
-let config = require('./config/default').default;
+let config = require('./config/default');
 let bluebird = require('bluebird');
 let Stripe = require('./StripeApi').default;
 let Voter = require('./VoterApi').default;
